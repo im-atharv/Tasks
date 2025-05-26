@@ -70,7 +70,7 @@ const ExpenseForm = ({ onAdd, onUpdate, editingExpense }) => {
                 onChange={(e) => setDesc(e.target.value)}
             />
             <select
-                className="w-full p-2 sm:p-3 border rounded-lg text-sm sm:text-base"
+                className="w-full p-2 sm:p-3 border rounded-lg text-sm sm:text-base cursor-pointer"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
             >
@@ -79,7 +79,7 @@ const ExpenseForm = ({ onAdd, onUpdate, editingExpense }) => {
             </select>
             <button
                 type="submit"
-                className="w-full bg-indigo-600 text-white p-2 rounded-lg hover:bg-indigo-700"
+                className="w-full bg-indigo-600 text-white p-2 rounded-lg hover:bg-indigo-700 cursor-pointer"
             >
                 {editingExpense ? 'Update Expense' : 'Add Expense'}
             </button>

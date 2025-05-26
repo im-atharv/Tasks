@@ -24,7 +24,7 @@ export default function ExpenseList({ expenses, onEdit, expenseRefs }) {
                         <span className="text-indigo-700 font-bold">${exp.amount.toFixed(2)}</span>
                         <button
                             onClick={() => onEdit(exp)}
-                            className="text-sm bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-lg"
+                            className="text-sm bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-lg cursor-pointer"
                         >
                             Edit
                         </button>

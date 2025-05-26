@@ -100,7 +100,7 @@ function App() {
   return (
     <div className="min-h-screen bg-gradient-to-tr from-indigo-100 to-blue-100 px-4 py-6 sm:py-10">
       <div className="w-full max-w-3xl mx-auto bg-white p-4 sm:p-6 rounded-2xl shadow-2xl space-y-6">
-        <h1 className="text-2xl sm:text-3xl font-bold text-center text-indigo-600">
+        <h1 className="text-2xl sm:text-4xl font-bold text-center text-indigo-600">
           Expense Tracker
         </h1>
 
@@ -132,13 +132,12 @@ function App() {
 
         <button
           onClick={clearExpenses}
-          className="w-full mt-2 sm:mt-4 bg-red-500 hover:bg-red-600 text-white text-sm sm:text-base p-2 sm:p-3 rounded-lg transition"
+          className="w-full mb-2 mt-2 sm:mt-4 bg-red-500 hover:bg-red-600 text-white text-sm sm:text-base p-2 sm:p-3 rounded-lg transition cursor-pointer"
         >
           Clear All Expenses
         </button>
+        <DownloadButtons />
       </div>
-
-      <DownloadButtons />
     </div>
   )
 }
