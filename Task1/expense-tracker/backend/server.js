@@ -1,12 +1,14 @@
-const express = require("express");
-const cors = require("cors");
-const bodyParser = require("body-parser");
-const XLSX = require("xlsx");
-const puppeteer = require("puppeteer");
+const express = require("express"); //Framework to build REST APIs easily.
+const cors = require("cors"); //Cross Origin Resource Sharing(CORS)
+const bodyParser = require("body-parser"); //Parses incoming request bodies, JSON in this case.
+const XLSX = require("xlsx"); //A library to generate Excel files.
+const puppeteer = require("puppeteer"); //To generate PDFs from HTML content.
 
-
+//Creation of express app
 const app = express();
+//Enable CORS for all routes
 app.use(cors());
+//Parses incoming json int he below POST requests
 app.use(bodyParser.json());
 
 //This is just to check that server is up and running
@@ -18,9 +20,11 @@ app.get("/", (req, res) => {
 app.post("/api/export/excel", (req, res) => {
   console.log("[API HIT] /api/export/excel - Generating Excel File");
 
+  //Extracts expenses and summary from the request body. If not present, uses empty defaults.
   const expenses = req.body.expenses || [];
   const summary = req.body.summary || {};
 
+  //Logs the incoming data
   console.log("Received expenses:", expenses.length);
   console.log("Received summary:", summary);
 
@@ -37,14 +41,17 @@ app.post("/api/export/excel", (req, res) => {
     ["Total Savings", summary.savings || 0],
     ["Total Expenses", summary.total || 0],
     ["Remaining Budget", summary.remaining || 0]
-  ];
+  ]
+  //Preparation of sheet using Array of Arrays and adds it to the same workbook
   const summarySheet = XLSX.utils.aoa_to_sheet(summarySheetData);
   XLSX.utils.book_append_sheet(workbook, summarySheet, "Summary");
 
+  //Converts the workbook into a binary buffer ready to be sent as a file.
   const buffer = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
 
   res.setHeader("Content-Disposition", "attachment; filename=expenses.xlsx");
   res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+  //Sends file as a response.
   res.send(buffer);
 });
 

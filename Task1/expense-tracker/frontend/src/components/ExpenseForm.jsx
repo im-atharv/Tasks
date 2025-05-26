@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react'
 
+//Functional component for expense form which has three props.
 const ExpenseForm = ({ onAdd, onUpdate, editingExpense }) => {
+
+    //Declares three state variables
     const [amount, setAmount] = useState('')
     const [desc, setDesc] = useState('')
     const [category, setCategory] = useState('Needs')
 
+    //Effect to sync form with editing data
     useEffect(() => {
         if (editingExpense) {
             setAmount(editingExpense.amount.toString())
@@ -17,10 +21,12 @@ const ExpenseForm = ({ onAdd, onUpdate, editingExpense }) => {
         }
     }, [editingExpense])
 
+    //Just to handle submit button if any of the field is empty gives the error and stops
     const handleSubmit = (e) => {
         e.preventDefault()
         if (!amount || !desc) return alert('Please fill in all fields.')
 
+        //Creates a new object for the new expense
         const newExpense = {
             amount: parseFloat(amount),
             desc,
@@ -35,11 +41,13 @@ const ExpenseForm = ({ onAdd, onUpdate, editingExpense }) => {
             onAdd(newExpense)
         }
 
+        //Resets the form after submission to their default value.
         setAmount('')
         setDesc('')
         setCategory('Needs')
     }
 
+    //To handle the scroll value change on the input field
     const handleWheel = (e) => {
         e.target.blur()
     }

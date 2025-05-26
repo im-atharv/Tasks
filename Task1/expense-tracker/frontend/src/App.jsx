@@ -4,10 +4,12 @@ import ExpenseList from "./components/ExpenseList"
 import Summary from "./components/Summary"
 import DownloadButtons from "./components/DownloadButtons"
 
+//Keys for the data in local storage
 const LOCAL_STORAGE_KEY = "expenses-v1"
 const SALARY_KEY = "monthly-salary"
 
 function App() {
+  //To handle state changes of expenses
   const [expenses, setExpenses] = useState(() => {
     try {
       const data = localStorage.getItem(LOCAL_STORAGE_KEY)
@@ -18,21 +20,28 @@ function App() {
     }
   })
 
+  //To handle the state changes of the salary 
   const [salary, setSalary] = useState(() => {
     return localStorage.getItem(SALARY_KEY) || ""
   })
 
+  //To handle state while editing of the particular expense and then replace the updated value.
   const [editingExpense, setEditingExpense] = useState(null)
+
+  //Using ref to handle scroll into view of the items in the expense list
   const expenseRefs = useRef({})  // map of id -> ref
 
+  //To store the updated expenses everytime its updated
   useEffect(() => {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(expenses))
   }, [expenses])
 
+  //To store the updated salary everytime its updated
   useEffect(() => {
     localStorage.setItem(SALARY_KEY, salary)
   }, [salary])
 
+  //Function to add new expense
   const addExpense = (expense) => {
     const currentDate = new Date().toLocaleDateString()
     const newExpense = { ...expense, id: Date.now(), date: currentDate }
@@ -51,6 +60,7 @@ function App() {
     }, 100)
   }
 
+  //Function to update existing expense
   const updateExpense = (updated) => {
     setExpenses(prev =>
       prev.map(exp => exp.id === updated.id ? updated : exp)
@@ -66,6 +76,7 @@ function App() {
     }, 100)
   }
 
+  //To handle the click on the edit button which sets the selected expense for editing and scroll to the top
   const handleEdit = (expense) => {
     setEditingExpense(expense)
 
@@ -73,6 +84,7 @@ function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  //Handle clear expenses button where the expenses array becomes empty and expenses item gets removed from the local storage
   const clearExpenses = () => {
     if (confirm("Are you sure you want to clear all expenses?")) {
       setExpenses([])
@@ -80,6 +92,7 @@ function App() {
     }
   }
 
+  //This is just to handle scroll on the input fields which removes focus from the input field
   const handleWheel = (e) => {
     e.target.blur()
   }
