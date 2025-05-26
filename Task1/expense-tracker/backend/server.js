@@ -8,7 +8,7 @@ const puppeteer = require("puppeteer"); //To generate PDFs from HTML content.
 const app = express();
 //Enable CORS for all routes
 app.use(cors());
-//Parses incoming json int he below POST requests
+//Parses incoming json in the below POST requests
 app.use(bodyParser.json());
 
 //This is just to check that server is up and running
