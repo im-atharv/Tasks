@@ -36,7 +36,7 @@ export default function DownloadButtons() {
   }
 
   //Function to download the file which take the url and filename
-  const downloadFile = async (url, filename) => {
+  const downloadFile = async (type, filename) => {
     //Function call to get all the data
     const expenses = getExpenses();
     const salary = getSalary();
@@ -48,6 +48,9 @@ export default function DownloadButtons() {
       return;
     }
 
+    //Construct the URL with the export type
+    const url = `http://localhost:4000/api/export?type=${type}`;
+
     //Log message to show how many expense records has been sent and to which url
     console.log(`[Frontend] Sending export request to ${url} with ${expenses.length} items`);
 
@@ -58,7 +61,7 @@ export default function DownloadButtons() {
         method: "POST",
         headers: { "Content-Type": "application/json" }, //Set headers to indicate JSON data
         body: JSON.stringify({ expenses, summary }), //Send both expenses and summary objects as JSON body
-      })
+      });
 
       //If response is not ok then sends the alert and stops
       if (!response.ok) {
@@ -96,15 +99,15 @@ export default function DownloadButtons() {
       <div className="mt-5 text-2xl sm:text-3xl font-bold text-red-500 text-center text-">Generate Your Monthly Reports</div>
       <div className="flex gap-4 justify-center mt-6 mb-12">
         <button
-          //Sends data to /api/export/excel
-          onClick={() => downloadFile("http://localhost:4000/api/export/excel", "expenses.xlsx")}
+          //Sends data to /api/export?type=excel
+          onClick={() => downloadFile("excel", "expenses.xlsx")}
           className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-700 transition cursor-pointer"
         >
           Download Excel
         </button>
         <button
-          //Sends data to /api/export/pdf
-          onClick={() => downloadFile("http://localhost:4000/api/export/pdf", "expenses.pdf")}
+          //Sends data to /api/export?type=pdf
+          onClick={() => downloadFile("pdf", "expenses.pdf")}
           className="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition cursor-pointer"
         >
           Download PDF
