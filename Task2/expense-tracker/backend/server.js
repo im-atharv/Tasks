@@ -4,7 +4,7 @@ const cors = require("cors"); // Enables Cross-Origin Resource Sharing
 const bodyParser = require("body-parser"); // Parses incoming request bodies
 const XLSX = require("xlsx"); // Library for working with Excel files
 const puppeteer = require("puppeteer"); // Headless browser for generating PDFs from HTML
-const exportRequestSchema = require("./validator"); // Zod schema for validating request data
+const { exportRequestSchema } = require("./validator"); // Zod schema for validating request data
 
 // Create an Express app
 const app = express();

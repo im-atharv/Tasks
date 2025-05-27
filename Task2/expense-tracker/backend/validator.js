@@ -1,5 +1,5 @@
 // Import the Zod library for schema-based validation
-const z = require("zod");
+const {z} = require("zod");
 
 // Defines a schema to validate each individual expense entry
 const expenseSchema = z.object({
