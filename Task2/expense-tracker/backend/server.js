@@ -29,7 +29,7 @@ app.post("/api/export", async (req, res) => {
     return res.status(400).send("Invalid export type. Use '?type=pdf' or '?type=excel'");
   }
 
-  // Validate the request body using Zod schema
+  // Validate the request body using Zod's safeParse Function.
   const parseResult = exportRequestSchema.safeParse(req.body);
   if (!parseResult.success) {
     // Return detailed error messages if validation fails
@@ -37,7 +37,7 @@ app.post("/api/export", async (req, res) => {
       path: issue.path.join("."),
       message: issue.message
     }));
-    return res.status(400).json({ errors: errorMessages });
+    return res.status(400).json({ errors: errorMessages }); //Sends Bad Request
   }
 
   // Destructure validated data
