@@ -1,5 +1,4 @@
-// middleware/validateExportData.js
-const { exportRequestSchema } = require("../validator");
+const { exportRequestSchema } = require("../validators/exportSchema");
 
 const validateExportRequest = (req, res, next) => {
   const validation = exportRequestSchema.safeParse(req.body);
