@@ -2,9 +2,10 @@ const express = require("express");
 const router = express.Router();
 
 const validateExportRequest = require("../middleware/validateExportData");
-const { generatePDFBuffer } = require("../utils/generatePDF");
-const { generateExcelBuffer } = require("../utils/generateExcel");
-const { setFileHeaders, sendSuccess, handleError } = require("../utils/responseHelpers");
+const { generatePDFBuffer } = require("../utils/fileGenerators/files/generatePDF");
+const { generateExcelBuffer } = require("../utils/fileGenerators/files/generateExcel");
+const setFileHeaders = require("../utils/setFileHeaders");
+const { sendSuccess, handleError } = require("../utils/responseHelpers");
 
 router.post("/", validateExportRequest, async (req, res) => {
   const { type } = req.query;

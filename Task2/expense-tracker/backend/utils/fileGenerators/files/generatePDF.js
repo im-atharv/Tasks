@@ -1,5 +1,5 @@
 const puppeteer = require("puppeteer");
-const { getPDFHtml } = require("./templates/pdfTemplate");
+const { getPDFHtml } = require("../templates/pdfTemplate");
 
 exports.generatePDFBuffer = async (summary, expenses) => {
   const html = getPDFHtml(summary, expenses);
