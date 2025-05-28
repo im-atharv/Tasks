@@ -2,8 +2,8 @@ import express from "express";
 import validateExportRequest from "../middleware/validateExportData.js";
 import { generatePDFBuffer } from "../utils/fileGenerators/files/generatePDF.js";
 import { generateExcelBuffer } from "../utils/fileGenerators/files/generateExcel.js";
-import setFileHeaders from "../utils/setFileHeaders.js";
-import { sendResponse } from "../utils/responseHelpers.js";
+import setFileHeaders from "../utils/helpers/setFileHeaders.js";
+import { sendResponse } from "../utils/helpers/responseHelpers.js";
 
 const router = express.Router();
 

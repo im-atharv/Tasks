@@ -1,5 +1,5 @@
 import { exportRequestSchema, exportQuerySchema } from "../utils/validations/validationSchemas.js";
-import { sendResponse } from "../utils/responseHelpers.js";
+import { sendResponse } from "../utils/helpers/responseHelpers.js";
 
 const validateExportRequest = (req, res, next) => {
   try {
