@@ -1,17 +1,21 @@
-import { exportRequestSchema } from "../validators/exportSchema.js";
+import { exportRequestSchema, exportQuerySchema } from "../utils/validations/validationSchemas.js";
+import { sendResponse } from "../utils/responseHelpers.js";
 
 const validateExportRequest = (req, res, next) => {
-  const validation = exportRequestSchema.safeParse(req.body);
+  try {
+    const validatedBody = exportRequestSchema.parse(req.body);
+    const validatedQuery = exportQuerySchema.parse(req.query);
 
-  if (!validation.success) {
-    const errors = validation.error.issues.map(
-      (issue) => `${issue.path.join(".")}: ${issue.message}`
-    );
-    return res.status(400).json({ error: errors.join(", ") });
+    req.validatedData = validatedBody;
+    req.validatedQuery = validatedQuery;
+
+    next();
+  } catch (err) {
+    return sendResponse(res, {
+      status: 400,
+      error: err.errors?.[0]?.message || "Invalid input data",
+    });
   }
-
-  req.validatedData = validation.data;
-  next();
 };
 
 export default validateExportRequest;

@@ -1,15 +1,27 @@
-export const sendSuccess = (res, buffer) => {
-  return res.status(200).send(buffer);
-};
+export const sendResponse = (res, { status = 200, data = null, error = null, headers = {} }) => {
+  // Apply headers
+  Object.entries(headers).forEach(([key, value]) => res.setHeader(key, value));
 
-export const handleError = (res, error) => {
-  if (error.code === "VALIDATION_ERROR") {
-    return res.status(400).json({ error: error.message || "Invalid data format" });
-  }
+  const handlers = new Map([
+    ['1xx', () => res.status(status).json({ info: data || "Informational response" })],
 
-  if (error.code === "GENERATION_ERROR") {
-    return res.status(500).json({ error: "Failed to generate file" });
-  }
+    ['2xx', () =>
+      Buffer.isBuffer(data)
+        ? res.status(status).send(data)
+        : res.status(status).json({ data })
+    ],
 
-  return res.status(500).json({ error: "An unknown error occurred" });
+    ['3xx', () => res.redirect(status, data || '/')],
+
+    ['4xx', () => res.status(status).json({ error: error || "Client error occurred" })],
+
+    ['5xx', () => res.status(status).json({ error: error || "Internal server error" })],
+  ]);
+
+  // Get the series: 1xx, 2xx, etc.
+  const statusSeries = Math.floor(status / 100) + 'xx';
+
+  const handler = handlers.get(statusSeries);
+
+  return handler ? handler() : res.status(500).json({ error: "Unknown status code" });
 };
