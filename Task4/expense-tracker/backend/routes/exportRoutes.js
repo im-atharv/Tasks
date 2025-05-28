@@ -1,7 +1,6 @@
 import express from "express";
 import validateExportRequest from "../middleware/validateExportData.js";
-import { generatePDFBuffer } from "../utils/fileGenerators/files/generatePDF.js";
-import { generateExcelBuffer } from "../utils/fileGenerators/files/generateExcel.js";
+import { generateFile } from "../utils/fileGenerators/generateFiles.js";
 import setFileHeaders from "../utils/helpers/setFileHeaders.js";
 import { sendResponse } from "../utils/helpers/responseHelpers.js";
 
@@ -12,14 +11,12 @@ router.post("/", validateExportRequest, async (req, res) => {
   const { type } = req.validatedQuery;
 
   try {
-    const buffer = type === "pdf"
-      ? await generatePDFBuffer(summary, expenses)
-      : await generateExcelBuffer(summary, expenses);
+    const buffer = await generateFile(type, summary, expenses);
 
     setFileHeaders(res, type, "expenses");
 
     return sendResponse(res, {
-      data: buffer, // default status is 200
+      data: buffer,
     });
   } catch (err) {
     console.error("Export generation error:", err);
