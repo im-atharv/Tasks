@@ -1,41 +1,52 @@
-// Import Chai and the function to test
-import { expect } from "chai";
-import { generateFile } from "../../../utils/fileGenerators/generateFiles.js";
+import { expect } from 'chai';
+import { createExcelWorkbook } from '../../../utils/fileGenerators/templates/excelTemplate.js';
+import XLSX from 'xlsx';
 
-describe("generateFile", function () {
-  this.timeout(5000); // Allow up to 5 seconds for file generation
+describe('createExcelWorkbook', () => {
+  it('should create a valid Excel workbook buffer for normal input', () => {
+    const summary = { total: 1000, count: 5 };
+    const expenses = [
+      { id: 1, item: 'Coffee', amount: 5 },
+      { id: 2, item: 'Book', amount: 20 },
+    ];
 
-  // Test input data
-  const summary = {
-    salary: 5000,
-    needs: 2000,
-    wants: 1000,
-    savings: 500,
-    total: 3500,
-    remaining: 1500,
-  };
+    const buffer = createExcelWorkbook(summary, expenses);
+    expect(Buffer.isBuffer(buffer)).to.be.true;
 
-  const expenses = [
-    { desc: "Lunch", amount: 10, category: "Needs", date: "2023-01-01" },
-    { desc: "Coffee", amount: 5, category: "Wants", date: "2023-01-02" },
-  ];
-
-  it('should generate PDF buffer for type "pdf"', async () => {
-    const buffer = await generateFile("pdf", summary, expenses);
-    expect(buffer).to.be.instanceOf(Buffer); // should return a Buffer object
+    // Check buffer is valid Excel by reading back sheets
+    const workbook = XLSX.read(buffer);
+    expect(workbook.SheetNames).to.include.members(['Expenses', 'Summary']);
   });
 
-  it('should generate Excel buffer for type "excel"', async () => {
-    const buffer = await generateFile("excel", summary, expenses);
-    expect(buffer).to.be.instanceOf(Buffer); // should return a Buffer object
+  it('should handle empty expenses and empty summary gracefully', () => {
+    const summary = {};
+    const expenses = [];
+
+    const buffer = createExcelWorkbook(summary, expenses);
+    expect(Buffer.isBuffer(buffer)).to.be.true;
+
+    const workbook = XLSX.read(buffer);
+    expect(workbook.SheetNames).to.include.members(['Expenses', 'Summary']);
+
+    // Summary sheet data should include keys with 0 values
+    const summarySheet = workbook.Sheets['Summary'];
+    const summaryData = XLSX.utils.sheet_to_json(summarySheet, { header: 1 });
+    expect(summaryData.length).to.equal(0); // no summary entries
   });
 
-  it('should throw error for unsupported type', async () => {
-    try {
-      await generateFile("invalidType", summary, expenses);
-      throw new Error("Expected error not thrown"); // This should not run
-    } catch (err) {
-      expect(err.message).to.include("Unsupported file type"); // error should contain this message
-    }
+  it('should default null/undefined summary values to 0', () => {
+    const summary = { total: null, count: undefined };
+    const expenses = [{ id: 1, item: 'Test', amount: 10 }];
+
+    const buffer = createExcelWorkbook(summary, expenses);
+    expect(Buffer.isBuffer(buffer)).to.be.true;
+
+    const workbook = XLSX.read(buffer);
+    const summarySheet = workbook.Sheets['Summary'];
+    const summaryData = XLSX.utils.sheet_to_json(summarySheet, { header: 1 });
+
+    // Summary sheet rows have 0 for null/undefined values
+    expect(summaryData).to.deep.include(['total', 0]);
+    expect(summaryData).to.deep.include(['count', 0]);
   });
 });

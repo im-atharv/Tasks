@@ -15,10 +15,10 @@ describe('setFileHeaders', () => {
     expect(res.setHeader.calledWith('Content-Disposition', 'attachment; filename="report.pdf"')).to.be.true;
   });
 
-  it('sets headers for excel type', () => {
+  it('sets correct headers for excel type', () => {
     setFileHeaders(res, 'excel', 'report');
-    expect(res.setHeader.calledWith('Content-Type')).to.be.true;
-    expect(res.setHeader.calledWith('Content-Disposition')).to.be.true;
+    expect(res.setHeader.calledWith('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')).to.be.true;
+    expect(res.setHeader.calledWith('Content-Disposition', 'attachment; filename="report.xlsx"')).to.be.true;
   });
 
   it('throws error for unsupported file type', () => {

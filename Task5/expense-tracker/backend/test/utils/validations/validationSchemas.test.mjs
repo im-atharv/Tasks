@@ -19,8 +19,18 @@ describe('Validation Schemas', () => {
     expect(() => exportRequestSchema.parse(input)).to.not.throw();
   });
 
+  it('rejects export request with missing fields', () => {
+    const invalidInput = {
+      expenses: [{ amount: 10 }], // Missing desc, category, date
+      summary: { salary: 500 }, // Missing required keys
+    };
+    expect(() => exportRequestSchema.parse(invalidInput)).to.throw();
+  });
+
+
   it('rejects invalid export query type', () => {
     // 'csv' is not a valid type in the schema, should throw
     expect(() => exportQuerySchema.parse({ type: 'csv' })).to.throw();
   });
+
 });
