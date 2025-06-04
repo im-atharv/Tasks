@@ -1,5 +1,5 @@
 // backend/controllers/postgresql/expenseController.js
-import { Expense } from '../../models/Postgresql/Expense.js'; // Sequelize model
+import Expense from '../../models/Postgresql/Expense.js'; // Sequelize model
 
 const createExpense = async (req, res) => {
   try {
