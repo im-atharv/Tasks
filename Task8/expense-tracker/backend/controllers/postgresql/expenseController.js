@@ -4,18 +4,20 @@ import Expense from '../../models/Postgresql/Expense.js'; // Sequelize model
 const createExpense = async (req, res) => {
   try {
     const { amount, desc, category } = req.body;
-    const newExpense = await Expense.create({ amount, desc, category });
-    res.status(201).json(newExpense);
+    await Expense.create({ amount, desc, category });
+    const sortedExpenses = await Expense.findAll({ order: [['id', 'ASC']] });
+    res.status(201).json(sortedExpenses);
   } catch (err) {
     console.error("Error creating expense:", err);
     res.status(500).json({ error: "Failed to create expense" });
   }
 };
 
+
 const getAllExpenses = async (req, res) => {
   try {
-    const expenses = await Expense.findAll(); // Sequelize method
-    res.json(expenses);
+    const sortedExpenses = await Expense.findAll({ order: [['id', 'ASC']] });
+    res.json(sortedExpenses);
   } catch (err) {
     console.error("Error fetching expenses:", err);
     res.status(500).json({ error: "Failed to fetch expenses" });
@@ -27,16 +29,16 @@ const updateExpense = async (req, res) => {
     const { amount, desc, category } = req.body;
     const expenseId = req.params.id;
 
-    const [updatedRowCount, updatedRows] = await Expense.update(
+    const [updatedRowCount] = await Expense.update(
       { amount, desc, category },
-      { where: { id: expenseId }, returning: true }
+      { where: { id: expenseId } }
     );
 
     if (!updatedRowCount) {
       return res.status(404).json({ error: "Expense not found" });
     }
-
-    res.json(updatedRows[0]);
+    const sortedExpenses = await Expense.findAll({ order: [['id', 'ASC']] });
+    res.json(sortedExpenses);
   } catch (err) {
     console.error("Error updating expense:", err);
     res.status(500).json({ error: "Failed to update expense" });
