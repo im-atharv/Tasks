@@ -1,0 +1,78 @@
+// CONFIGURATION
+$fs-step: 0.5;
+$fs-range: 7;
+$space-range: 7;
+$unit: rem;
+
+// Logical spacing properties
+$props: (
+  m: margin,
+  p: padding
+);
+
+// Directions map (short → logical base name)
+$dirs: (
+  t: top,
+  b: bottom,
+  start: inline-start,
+  end: inline-end,
+  x: inline,
+  y: block,
+  '': null
+);
+
+// Text decorations
+$text-decorations: underline, overline, line-through, none;
+
+// Colors
+$colors: (
+  primary: #007bff,
+  secondary: #6c757d
+);
+
+// 1. Font Sizes
+@for $i from 0 through $fs-range - 1 {
+  .fs-#{$i} {
+    font-size: #{$i * $fs-step}#{$unit};
+  }
+}
+
+// 2. Spacing Utilities (e.g., mx-1, pstart-2, py-4)
+@each $prop-short, $prop-full in $props {
+  @each $dir-short, $dir-full in $dirs {
+    @for $i from 0 through $space-range - 1 {
+      $class-name: "#{$prop-short}#{$dir-short}-#{$i}";  //mt-0
+
+      .#{$class-name} {
+        @if $dir-full == null {
+          // No direction, apply to full prop
+          #{$prop-full}: #{$i}#{$unit};     //margin:0rem
+        }
+
+        @else if $dir-full == inline or $dir-full == block {
+          // Logical axes: inline => start & end
+          #{$prop-full}-#{$dir-full}-start: #{$i}#{$unit};
+          #{$prop-full}-#{$dir-full}-end: #{$i}#{$unit};
+        }
+
+        @else {
+          // Single logical direction (top, bottom, inline-start, etc.)
+          #{$prop-full}-#{$dir-full}: #{$i}#{$unit};
+        }
+      }
+    }
+  }
+}
+
+// 3. Text Decorations
+@each $decor in $text-decorations {
+  .text-decor-#{$decor} {
+    text-decoration: $decor;
+  }
+}
+
+// 4. Text and Background Colors
+@each $name, $color in $colors {
+  .text-#{$name} { color: $color; }
+  .bg-#{$name} { background-color: $color; }
+}
