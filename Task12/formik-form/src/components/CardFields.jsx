@@ -1,101 +1,119 @@
 import React, { useRef } from "react";
-import { usePaymentInputs } from "react-payment-inputs"; // For formatting and managing card input
+import { useFormikContext } from "formik";
+import TextField from "./TextField";
 
-// Reusable card input fields component used in the Checkout form
-export default function CardFields({ formik }) {
-    // Refs to auto-focus next input fields
+// Helper for updating a Formik field with value + touched
+const updateField = (setFieldValue, setFieldTouched) => (name, value) => {
+    setFieldValue(name, value);
+    setFieldTouched(name, true, false);
+};
+
+export default function CardFields() {
+    const {
+        values,
+        setFieldValue,
+        setFieldTouched,
+        errors,
+        touched,
+    } = useFormikContext();
+
+    const cardRef = useRef();
     const expiryRef = useRef();
     const cvvRef = useRef();
     const zipRef = useRef();
 
-    // Get props helper from react-payment-inputs to auto-format card number
-    const { getCardNumberProps } = usePaymentInputs();
+    const handleUpdate = updateField(setFieldValue, setFieldTouched);
 
-    // Handle Card Number input - keep only digits, format in groups of 4
     const handleCardInput = (e) => {
-        const raw = e.target.value.replace(/\D/g, "").slice(0, 16); // remove non-digits, limit to 16 digits
-        formik.setFieldValue("cardNumber", raw.replace(/(.{4})/g, "$1 ").trim()); // group by 4 and update formik
-        if (raw.length === 16) expiryRef.current?.focus(); // move to expiry input if full
+        const raw = e.target.value.replace(/\D/g, "").slice(0, 16);
+        handleUpdate("cardNumber", raw.replace(/(.{4})/g, "$1 ").trim());
+        if (raw.length === 16) expiryRef.current?.focus();
     };
 
-    // Handle expiry date select change - set value and focus next
     const handleExpiryChange = (e) => {
-        formik.setFieldValue("expiry", e.target.value);
-        cvvRef.current?.focus(); // move to CVV field
+        handleUpdate("expiry", e.target.value);
+        cvvRef.current?.focus();
     };
 
-    // Handle CVV input - only digits, 3 max, then focus ZIP
     const handleCvvInput = (e) => {
         const val = e.target.value.replace(/\D/g, "").slice(0, 3);
-        formik.setFieldValue("cvv", val);
-        if (val.length === 3) zipRef.current?.focus();
+        const lastChar = e.nativeEvent?.data;
+        handleUpdate("cvv", val);
+
+        if (val.length === 3 && lastChar) zipRef.current?.focus();
+        if (val.length === 0 && lastChar === null) expiryRef.current?.focus();
     };
 
-    // Handle ZIP code input - digits only, max 6 digits
     const handleZipChange = (e) => {
-        formik.setFieldValue("cardZip", e.target.value.replace(/\D/g, "").slice(0, 6));
+        const val = e.target.value.replace(/\D/g, "").slice(0, 6);
+        const lastChar = e.nativeEvent?.data;
+        handleUpdate("cardZip", val);
+
+        if (val.length === 0 && lastChar === null) cvvRef.current?.focus();
     };
 
-    // Generate list of valid MM/YY expiry options (current month onwards for 10 years)
     const generateExpiryOptions = () => {
-        const currentYear = new Date().getFullYear() % 100; // two-digit year
-        const currentMonth = new Date().getMonth() + 1; // JS months are 0-based
-        const opts = [];
+        const now = new Date();
+        const startYear = now.getFullYear() % 100;
+        const startMonth = now.getMonth() + 1;
 
-        for (let y = currentYear; y <= currentYear + 10; y++) {
-            for (let m = 1; m <= 12; m++) {
-                if (!(y === currentYear && m < currentMonth)) {
-                    opts.push(`${String(m).padStart(2, "0")}/${String(y).padStart(2, "0")}`);
-                }
-            }
-        }
-
-        return opts;
+        return Array.from({ length: 11 }, (_, y) => startYear + y)
+            .flatMap((year) =>
+                Array.from({ length: 12 }, (_, m) => {
+                    const month = m + 1;
+                    if (year === startYear && month < startMonth) return null;
+                    return `${String(month).padStart(2, "0")}/${String(year).padStart(2, "0")}`;
+                }).filter(Boolean)
+            );
     };
 
-    // Common styling for inputs
-    const inputStyle = "w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none";
+    const inputStyle =
+        "w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none";
+
+    const renderError = (name) =>
+        touched[name] && errors[name] && (
+            <p className="text-sm text-red-500 mt-1">{errors[name]}</p>
+        );
 
     return (
         <div className="space-y-4 mt-6">
-            {/* CARD NUMBER */}
+            {/* Card Number */}
             <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Card Number</label>
                 <input
-                    {...getCardNumberProps({
-                        value: formik.values.cardNumber,
-                        onChange: handleCardInput,
-                    })}
-                    onBlur={() => formik.setFieldTouched("cardNumber", true)}
+                    ref={cardRef}
+                    name="cardNumber"
+                    value={values.cardNumber}
+                    onChange={handleCardInput}
+                    onBlur={() => setFieldTouched("cardNumber", true, false)}
                     className={inputStyle + " tracking-widest"}
                     placeholder="0000 0000 0000 0000"
+                    inputMode="numeric"
                 />
-                {formik.touched.cardNumber && formik.errors.cardNumber && (
-                    <p className="text-sm text-red-500 mt-1">{formik.errors.cardNumber}</p>
-                )}
+                {renderError("cardNumber")}
             </div>
 
-            {/* EXPIRY / CVV / ZIP */}
+            {/* Expiry / CVV / ZIP */}
             <div className="grid grid-cols-3 gap-4">
-                {/* EXPIRY */}
+                {/* Expiry */}
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Expiry</label>
                     <select
                         ref={expiryRef}
                         name="expiry"
-                        value={formik.values.expiry}
+                        value={values.expiry}
                         onChange={handleExpiryChange}
-                        onBlur={() => formik.setFieldTouched("expiry", true)}
+                        onBlur={() => setFieldTouched("expiry", true, false)}
                         className={inputStyle}
                     >
                         <option value="">MM/YY</option>
                         {generateExpiryOptions().map((op) => (
-                            <option key={op} value={op}>{op}</option>
+                            <option key={op} value={op}>
+                                {op}
+                            </option>
                         ))}
                     </select>
-                    {formik.touched.expiry && formik.errors.expiry && (
-                        <p className="text-sm text-red-500 mt-1">{formik.errors.expiry}</p>
-                    )}
+                    {renderError("expiry")}
                 </div>
 
                 {/* CVV */}
@@ -105,33 +123,26 @@ export default function CardFields({ formik }) {
                         ref={cvvRef}
                         name="cvv"
                         type="password"
-                        value={formik.values.cvv}
+                        value={values.cvv}
                         onChange={handleCvvInput}
-                        onBlur={() => formik.setFieldTouched("cvv", true)}
+                        onBlur={() => setFieldTouched("cvv", true, false)}
                         className={inputStyle}
                         placeholder="123"
+                        inputMode="numeric"
                     />
-                    {formik.touched.cvv && formik.errors.cvv && (
-                        <p className="text-sm text-red-500 mt-1">{formik.errors.cvv}</p>
-                    )}
+                    {renderError("cvv")}
                 </div>
 
-                {/* CARD ZIP CODE */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">ZIP</label>
-                    <input
-                        ref={zipRef}
-                        name="cardZip"
-                        value={formik.values.cardZip}
-                        onChange={handleZipChange}
-                        onBlur={() => formik.setFieldTouched("cardZip", true)}
-                        className={inputStyle}
-                        placeholder="ZIP"
-                    />
-                    {formik.touched.cardZip && formik.errors.cardZip && (
-                        <p className="text-sm text-red-500 mt-1">{formik.errors.cardZip}</p>
-                    )}
-                </div>
+                {/* ZIP */}
+                <TextField
+                    ref={zipRef}
+                    name="cardZip"
+                    label="ZIP"
+                    placeholder="ZIP"
+                    inputMode="numeric"
+                    maxLength={6}
+                    onChange={handleZipChange}
+                />
             </div>
         </div>
     );

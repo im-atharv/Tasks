@@ -12,6 +12,7 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.1.10",
     "autoprefixer": "^10.4.21",
+    "axios": "^1.10.0",
     "credit-card-type": "^10.0.2",
     "formik": "^2.4.6",
     "postcss": "^8.5.6",
