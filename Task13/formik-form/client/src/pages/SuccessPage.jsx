@@ -1,4 +1,3 @@
-// src/pages/SuccessPage.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BillingSummary from "../components/BillingSummary";
@@ -12,7 +11,7 @@ export default function SuccessPage() {
     const stored = localStorage.getItem("lastOrder");
     if (!stored) {
       toast.error("No order data found");
-      return navigate("/");
+      return;
     }
 
     const parsed = JSON.parse(stored);
@@ -21,16 +20,23 @@ export default function SuccessPage() {
   }, []);
 
   return (
-    <div className="max-w-3xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
+    <div className="max-w-3xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-md text-center">
       <h1 className="text-3xl font-bold text-green-600 mb-4">🎉 Payment Successful!</h1>
       <p className="mb-6 text-gray-700">Thank you for your purchase.</p>
 
-      {values && (
-        <BillingSummary
-          values={values}
-          amount={values.calculatedPrice} // ✅ Use actual paid amount
-        />
+      {values ? (
+        <BillingSummary values={values} amount={values.calculatedPrice} />
+      ) : (
+        <p className="text-red-600 mb-6">Order summary not available.</p>
       )}
+
+      {/* ✅ Checkout Again Button */}
+      <button
+        onClick={() => navigate("/")}
+        className="mt-8 inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded"
+      >
+        Checkout Again
+      </button>
     </div>
   );
 }
