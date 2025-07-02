@@ -15,6 +15,7 @@ const PORT = process.env.PORT || 5000;
 connectDB();
 
 app.use(cors());
+app.set("trust proxy", 1); // Trust first proxy for secure cookies
 
 app.use("/stripe", bodyParser.raw({ type: "application/json" }), webhookRoutes);
 

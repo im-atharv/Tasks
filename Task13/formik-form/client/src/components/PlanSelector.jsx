@@ -7,6 +7,7 @@ import {
     RADIO_TECH_OPTIONS,
 } from "../constants/radioTechOptions";
 
+
 export default function PlanSelector() {
     const { values, setFieldValue } = useFormikContext();
     const selectedTech = values.radioTech || ""; // ✅ now a string
@@ -118,7 +119,7 @@ export default function PlanSelector() {
 
             {/* 💰 Total Price */}
             <div className="text-lg font-semibold text-green-700">
-                Total Price: ₹{price}
+                Total Price: {price} USD
             </div>
         </div>
     );
